@@ -14,6 +14,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +32,7 @@ public class MainActivity extends Activity implements CNNListener {
     private static final int REQUEST_IMAGE_CAPTURE = 100;
     private static final int REQUEST_IMAGE_SELECT = 200;
     public static final int MEDIA_TYPE_IMAGE = 1;
-
+    String imagePath;
     // handle camera parameter
     private Camera mCamera;
 
@@ -138,15 +139,20 @@ public class MainActivity extends Activity implements CNNListener {
 
     @Override
     public void onTaskCompleted(int result) {
-//        ivCaptured.setImageBitmap(bmp);
-//        tvLabel.setText(SCENE_CLASSES[result]);
-//        Log.d(LOG_TAG, "done !!");
-//        btnCamera.setEnabled(true);
-//        btnSelect.setEnabled(true);
-//
-//        if (dialog != null) {
-//            dialog.dismiss();
-//        }
+        //ivCaptured.setImageBitmap(bmp);
+        //tvLabel.setText(SCENE_CLASSES[result]);
+        Log.d(LOG_TAG, "done !!");
+        System.out.print(SCENE_CLASSES[result]);
+        //btnCamera.setEnabled(true);
+        //btnSelect.setEnabled(true);
+        ((TextView) findViewById(R.id.main_textView_detection)).setText(SCENE_CLASSES[result]);
+        File file = new File(imagePath);
+        if (file.exists()) {
+            file.delete();
+        }
+        //if (dialog != null) {
+        //    dialog.dismiss();
+        //}
     }
 
     /** Create a file Uri for saving an image or video */
@@ -253,8 +259,9 @@ public class MainActivity extends Activity implements CNNListener {
         @Override
         public void onPreviewFrame(byte[] data, Camera camera) {
             Camera.Parameters parameters = camera.getParameters();
-            util.saveImageToPath(data, parameters, "/caffe_mobile/test.jpg");
-
+            imagePath = util.saveImageToPath(data, parameters, "/caffe_mobile/test.jpg");
+            CNNTask cnnTask = new CNNTask(MainActivity.this);
+            cnnTask.execute(imagePath);
         }
     };
 

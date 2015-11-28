@@ -26,16 +26,16 @@ public class Util {
         return bestSize;
     }
 
-    public void saveImageToPath(byte[] data, Camera.Parameters parameters, String desPath) {
+    public String saveImageToPath(byte[] data, Camera.Parameters parameters, String desPath) {
         Camera.Size size = parameters.getPreviewSize();
+        String filePath = Environment.getExternalStorageDirectory().getPath() + desPath;
         try {
             data = rotateYUV90(data, size.width, size.height);
             int rotatedHeight = size.width;
             int rotatedWidth = size.height;
             YuvImage image = new YuvImage(data, parameters.getPreviewFormat(),
                     rotatedWidth, rotatedHeight, null);
-            File file = new File(Environment.getExternalStorageDirectory().getPath() + desPath);
-
+            File file = new File(filePath);
             if (!file.exists()) {
                 FileOutputStream fos = new FileOutputStream(file);
                 image.compressToJpeg(new Rect(0, 0, image.getWidth(), image.getHeight()), 90, fos);
@@ -44,6 +44,7 @@ public class Util {
         } catch (FileNotFoundException e) {
 
         }
+        return filePath;
     }
 
     private byte[] rotateYUV90(byte[] data, int imageWidth, int imageHeight) {
