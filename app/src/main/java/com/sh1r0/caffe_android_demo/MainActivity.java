@@ -275,6 +275,9 @@ public class MainActivity extends Activity implements CNNListener {
     public void onResume() {
         super.onResume();
         mCamera = Camera.open(0);// 0 is back face camera, 1 is front face camera
+        if (mPreviewCallback != null) {
+            mCamera.setPreviewCallback(mPreviewCallback);
+        }
         mCamera.setDisplayOrientation(90);
     }
 
@@ -282,6 +285,7 @@ public class MainActivity extends Activity implements CNNListener {
     public void onPause() {
         super.onPause();
         if (mCamera != null) {
+            mCamera.setPreviewCallback(null);
             mCamera.release();
             mCamera = null;
         }
