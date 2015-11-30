@@ -9,10 +9,28 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <TextView
-        android:id="@+id/main_textView_detection"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="not starting"/>
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/main_textView_detection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="not starting"/>
+
+        <TextView
+            android:id="@+id/main_textView_detection2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="not starting"/>
+
+        <TextView
+            android:id="@+id/main_textView_detection3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="not starting"/>
+    </LinearLayout>
+
 
 </RelativeLayout>

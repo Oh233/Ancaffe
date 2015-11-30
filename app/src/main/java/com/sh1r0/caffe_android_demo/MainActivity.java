@@ -19,6 +19,7 @@ import android.widget.TextView;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -118,34 +119,39 @@ public class MainActivity extends Activity implements CNNListener {
 //        super.onActivityResult(requestCode, resultCode, data);
 //    }
 
-    private class CNNTask extends AsyncTask<String, Void, Integer> {
+    private class CNNTask extends AsyncTask<String, Void, ArrayList<Integer>> {
         private CNNListener listener;
-
+        private ArrayList<Integer> resultList;
         public CNNTask(CNNListener listener) {
             this.listener = listener;
+            resultList = new ArrayList<Integer>();
         }
 
         @Override
-        protected Integer doInBackground(String... strings) {
-            return caffeMobile.predictImage(strings[0]);
+        protected ArrayList<Integer> doInBackground(String... strings) {
+            int[] ccc = caffeMobile.predictImage(strings[0]);
+            for (int i = 0; i < 3; ++i)
+            {
+                resultList.add(ccc[i]);
+            }
+            return resultList;
         }
 
         @Override
-        protected void onPostExecute(Integer integer) {
+        protected void onPostExecute(ArrayList<Integer> integer) {
             listener.onTaskCompleted(integer);
             super.onPostExecute(integer);
         }
     }
 
     @Override
-    public void onTaskCompleted(int result) {
-        //ivCaptured.setImageBitmap(bmp);
-        //tvLabel.setText(SCENE_CLASSES[result]);
+    public void onTaskCompleted(ArrayList<Integer> result) {
         Log.d(LOG_TAG, "done !!");
-        System.out.print(SCENE_CLASSES[result]);
-        //btnCamera.setEnabled(true);
-        //btnSelect.setEnabled(true);
-        ((TextView) findViewById(R.id.main_textView_detection)).setText(SCENE_CLASSES[result]);
+
+        ((TextView) findViewById(R.id.main_textView_detection)).setText(SCENE_CLASSES[result.get(0)]);
+        ((TextView) findViewById(R.id.main_textView_detection2)).setText(SCENE_CLASSES[result.get(1)]);
+        ((TextView) findViewById(R.id.main_textView_detection3)).setText(SCENE_CLASSES[result.get(2)]);
+
         File file = new File(imagePath);
         if (file.exists()) {
             file.delete();
