@@ -3,10 +3,8 @@ package com.sh1r0.caffe_android_demo;
 import android.app.Activity;
 import android.content.res.AssetManager;
 import android.hardware.Camera;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,10 +17,8 @@ import android.widget.TextView;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Array;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Collections;
 import java.util.Scanner;
 
 
@@ -30,10 +26,8 @@ public class MainActivity extends Activity implements CNNListener {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
-    private static final int REQUEST_IMAGE_CAPTURE = 100;
-    private static final int REQUEST_IMAGE_SELECT = 200;
-    public static final int MEDIA_TYPE_IMAGE = 1;
     String imagePath;
+
     // handle camera parameter
     private Camera mCamera;
 
@@ -42,6 +36,8 @@ public class MainActivity extends Activity implements CNNListener {
     private static String[] SCENE_CLASSES;
     private static final String caffeModelPath = "/sdcard/caffe_mobile/bvlc_reference_caffenet/deploy_mobile.prototxt";
     private static final String caffeWeightPath = "/sdcard/caffe_mobile/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel";
+    private final int numReturn = 3;
+    private final int numClass = 70;
     static {
         System.loadLibrary("caffe");
         System.loadLibrary("caffe_jni");
@@ -49,6 +45,14 @@ public class MainActivity extends Activity implements CNNListener {
 
     // util library
     private Util util;
+
+    // previous frame
+    private ArrayList<Float> disp_prob; // Average of following three
+    private ArrayList<Float> current_prob;
+    private ArrayList<Float> prev_prob;
+    private ArrayList<Float> prev_prob2;
+    // index result
+    private ArrayList<Integer> indexResult;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,12 +64,12 @@ public class MainActivity extends Activity implements CNNListener {
 
         util = new Util();
         initializeCaffeManager();
+        initializeDataArray();
         SurfaceView surfaceView = (SurfaceView) findViewById(R.id.main_surfaceView_camera);
         surfaceView.getHolder().addCallback(surfaceCallback);
     }
 
-    private void initializeCaffeManager()
-    {
+    private void initializeCaffeManager() {
         caffeMobile = new CaffeMobile();
         caffeMobile.enableLog(true);
         caffeMobile.loadModel(caffeModelPath, caffeWeightPath);
@@ -85,40 +89,19 @@ public class MainActivity extends Activity implements CNNListener {
         }
     }
 
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        if ((requestCode == REQUEST_IMAGE_CAPTURE || requestCode == REQUEST_IMAGE_SELECT) && resultCode == RESULT_OK) {
-//            String imgPath;
-//
-//            if (requestCode == REQUEST_IMAGE_CAPTURE) {
-//                imgPath = fileUri.getPath();
-//            } else {
-//                Uri selectedImage = data.getData();
-//                String[] filePathColumn = { MediaStore.Images.Media.DATA };
-//                Cursor cursor = MainActivity.this.getContentResolver().query(selectedImage, filePathColumn, null, null, null);
-//                cursor.moveToFirst();
-//                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-//                imgPath = cursor.getString(columnIndex);
-//                cursor.close();
-//            }
-//
-//            bmp = BitmapFactory.decodeFile(imgPath);
-//            Log.d(LOG_TAG, imgPath);
-//            Log.d(LOG_TAG, String.valueOf(bmp.getHeight()));
-//            Log.d(LOG_TAG, String.valueOf(bmp.getWidth()));
-//
-//            dialog = ProgressDialog.show(MainActivity.this, "Predicting...", "Wait for one sec...", true);
-//
-//            CNNTask cnnTask = new CNNTask(MainActivity.this);
-//            cnnTask.execute(imgPath);
-//        } else {
-//            btnCamera.setEnabled(true);
-//            btnSelect.setEnabled(true);
-//        }
-//
-//        super.onActivityResult(requestCode, resultCode, data);
-//    }
-
+    private void initializeDataArray() {
+        disp_prob = new ArrayList<Float>();
+        current_prob = new ArrayList<Float>();
+        prev_prob = new ArrayList<Float>();
+        prev_prob2 = new ArrayList<Float>();
+        indexResult = new ArrayList<Integer>();
+        for (int i=0;i<numClass; ++i) {
+            prev_prob.add(0.0f);
+            prev_prob2.add(0.0f);
+            disp_prob.add(0.0f);
+            current_prob.add(0.0f);
+        }
+    }
     private class CNNTask extends AsyncTask<String, Void, ArrayList<Integer>> {
         private CNNListener listener;
         private ArrayList<Integer> resultList;
@@ -130,7 +113,7 @@ public class MainActivity extends Activity implements CNNListener {
         @Override
         protected ArrayList<Integer> doInBackground(String... strings) {
             int[] ccc = caffeMobile.predictImage(strings[0]);
-            for (int i = 0; i < 3; ++i)
+            for (int i = 0; i < numClass; ++i)
             {
                 resultList.add(ccc[i]);
             }
@@ -146,55 +129,13 @@ public class MainActivity extends Activity implements CNNListener {
 
     @Override
     public void onTaskCompleted(ArrayList<Integer> result) {
-        Log.d(LOG_TAG, "done !!");
-
-        ((TextView) findViewById(R.id.main_textView_detection)).setText(SCENE_CLASSES[result.get(0)]);
-        ((TextView) findViewById(R.id.main_textView_detection2)).setText(SCENE_CLASSES[result.get(1)]);
-        ((TextView) findViewById(R.id.main_textView_detection3)).setText(SCENE_CLASSES[result.get(2)]);
-
+        updateCurrentContainer(result);
+        setCurrentResult();
+        setSupportingTextInfo();
         File file = new File(imagePath);
         if (file.exists()) {
             file.delete();
         }
-        //if (dialog != null) {
-        //    dialog.dismiss();
-        //}
-    }
-
-    /** Create a file Uri for saving an image or video */
-    private static Uri getOutputMediaFileUri(int type){
-        return Uri.fromFile(getOutputMediaFile(type));
-    }
-
-    /** Create a File for saving an image or video */
-    private static File getOutputMediaFile(int type){
-        // To be safe, you should check that the SDCard is mounted
-        // using Environment.getExternalStorageState() before doing this.
-
-        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "Caffe-Android-Demo");
-        // This location works best if you want the created images to be shared
-        // between applications and persist after your app has been uninstalled.
-
-        // Create the storage directory if it does not exist
-        if (! mediaStorageDir.exists()) {
-            if (! mediaStorageDir.mkdirs()) {
-                Log.d("MyCameraApp", "failed to create directory");
-                return null;
-            }
-        }
-
-        // Create a media file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        File mediaFile;
-        if (type == MEDIA_TYPE_IMAGE) {
-            mediaFile = new File(mediaStorageDir.getPath() + File.separator +
-                    "IMG_"+ timeStamp + ".jpg");
-        } else {
-            return null;
-        }
-
-        return mediaFile;
     }
 
     @Override
@@ -261,6 +202,9 @@ public class MainActivity extends Activity implements CNNListener {
         }
     };
 
+    /**
+     * mPreviewCallback, which get invoked every frame the camera received
+     */
     private Camera.PreviewCallback mPreviewCallback = new Camera.PreviewCallback() {
         @Override
         public void onPreviewFrame(byte[] data, Camera camera) {
@@ -291,4 +235,33 @@ public class MainActivity extends Activity implements CNNListener {
         }
     }
 
+    private void updateCurrentContainer(ArrayList<Integer> result) {
+        prev_prob2 = prev_prob;
+        prev_prob = current_prob;
+        for (int i=0;i<result.size();++i) {
+            current_prob.set(i, (float) result.get(i) / 1000);
+        }
+    }
+
+    private void setCurrentResult() {
+        for (int i=0;i<current_prob.size();++i) {
+            disp_prob.set(i, current_prob.get(i) + prev_prob.get(i) + prev_prob2.get(i));
+        }
+        ArrayList<Float> copy = new ArrayList<Float>(disp_prob);
+        Collections.sort(disp_prob);
+        Collections.reverse(disp_prob);
+        indexResult.clear();
+        for (int i=0;i<numReturn;++i) {
+            indexResult.add(copy.indexOf(disp_prob.get(i)));
+        }
+    }
+
+    private void setSupportingTextInfo() {
+        ((TextView) findViewById(R.id.main_textView_detection)).setText(SCENE_CLASSES[indexResult.get(0)]);
+        ((TextView) findViewById(R.id.main_textView_detection2)).setText(SCENE_CLASSES[indexResult.get(1)]);
+        ((TextView) findViewById(R.id.main_textView_detection3)).setText(SCENE_CLASSES[indexResult.get(2)]);
+        ((TextView) findViewById(R.id.main_textView_detection_prob)).setText(String.valueOf(disp_prob.get(0)));
+        ((TextView) findViewById(R.id.main_textView_detection2_prob)).setText(String.valueOf(disp_prob.get(1)));
+        ((TextView) findViewById(R.id.main_textView_detection3_prob)).setText(String.valueOf(disp_prob.get(2)));
+    }
 }

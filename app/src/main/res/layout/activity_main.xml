@@ -13,23 +13,59 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-        <TextView
-            android:id="@+id/main_textView_detection"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="not starting"/>
 
-        <TextView
-            android:id="@+id/main_textView_detection2"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="not starting"/>
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/main_textView_detection"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="not starting"/>
 
-        <TextView
-            android:id="@+id/main_textView_detection3"
+            <TextView
+                android:id="@+id/main_textView_detection_prob"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="not starting"/>
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="not starting"/>
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/main_textView_detection2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="not starting"/>
+
+            <TextView
+                android:id="@+id/main_textView_detection2_prob"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="not starting"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/main_textView_detection3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="not starting"/>
+
+            <TextView
+                android:id="@+id/main_textView_detection3_prob"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="not starting"/>
+        </LinearLayout>
+
     </LinearLayout>
 
 
