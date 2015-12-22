@@ -1,0 +1,70 @@
+n01440764 airport-in
+n01443537 airport-out
+n01484850 arena (performance)
+n01491361 barber shop
+n01494475 basement
+n01496331 bayou
+n01498041 beach
+n01514668 building-inside
+n01514859 building-outside
+n01518878 bridge
+n01530575 cabin
+n01531178 camping site
+n01532829 castel
+n01534433 cemetery
+n01537544 city-road
+n01558993 coast
+n01560419 construction-site
+n01580077 crevasse
+n01582220 desert
+n01592084 dock
+n01601694 engine room
+n01608432 entertainment
+n01614925 exhibition
+n01616318 farm
+n01622779 flourish shop
+n01629819 food shop
+n01630670 forest
+n01631663 garbage dump
+n01632458 garden
+n01632777 gas station
+n01641577 grass
+n01644373 green house
+n01644900 grotto
+n01664065 gym
+n01665541 historic site
+n01667114 home
+n01667778 hospital
+n01669191 industry
+n01675722 islet
+n01677366 jail
+n01682714 library
+n01685808 market
+n01687978 river
+n01688243 tv show
+n01689811 military region
+n01692333 moutain
+n01693334 museum
+n01694178 parking garage
+n01695060 party
+n01697457 pet shop
+n01698640 playground
+n01704323 restaurant
+n01728572 school
+n01728920 shopping site
+n01729322 sports hall
+n01729977 street
+n01734418 swimming pool
+n01735189 snow
+n01737021 sky
+n01739381 office
+n01740131 on the ship
+n01742172 sea
+n01744401 station
+n01748264 storage
+n01749939 theatre
+n01751748 transportation
+n01753488 university
+n01755581 underwater
+n01756291 village
+n01768244 waterfall

@@ -1,0 +1,46 @@
+1### airport-in
+2### airport-out
+3### arena (performance)
+4### beach
+5### building-inside
+6### building-outside
+7### cabin
+8### camping site
+9### construction-site
+10### desert
+11### exhibition
+12### farm
+13### street
+14### forest
+15### garden
+16### gas station
+17### grass
+18### grotto
+19### gym
+20### hospital
+21### industry
+22### islet
+23### jail
+24### library
+25### flourish shop
+26### river
+27### tv show
+28### military region
+29### moutain
+30### museum
+31### parking garage
+32### party
+33### playground
+34### sports hall
+35### swimming pool
+36### snow
+37### sky
+38### office
+39### on the ship
+40### station
+41### theatre
+42### transportation
+43### waterfall
+44### underwater
+45### whiteboard
+46### candlelight
